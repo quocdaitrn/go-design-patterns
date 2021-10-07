@@ -3,27 +3,40 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
-var lock = &sync.Mutex{}
 
 type singleton struct {}
 
-var instance *singleton
+var instance *singleton // not volatile ==> double-checked locking may be broken
 
-// GetInstance retrieve the instance of singleton.
-func GetInstanse() *singleton {
-	if instance == nil {
-		lock.Lock()
-		defer lock.Unlock()
-		// double check locking
-		if instance == nil {
-			fmt.Println("Create an instance of singleton")
-			instance = &singleton{}
-		}
-	}
+// var lock = &sync.Mutex{}
 
-	return instance
+// // GetInstance retrieve the instance of singleton.
+// func GetInstanse() *singleton {
+// 	if instance == nil {
+// 		lock.Lock()
+// 		defer lock.Unlock()
+// 		// double check locking
+// 		if instance == nil {
+// 			fmt.Println("Create an instance of singleton")
+// 			instance = &singleton{}
+// 		}
+// 	}
+
+// 	return instance
+// }
+
+var once sync.Once
+
+func GetInstance() *singleton {
+  once.Do(func(){
+    time.Sleep(5 * time.Second)
+	fmt.Println("Create an instance of singleton")
+    instance = &singleton{}
+  })
+  return instance
 }
 
 func main() {
@@ -32,7 +45,7 @@ func main() {
 	for i := 0; i < 30; i++ {
 		wg.Add(1)
 		go func() {
-			GetInstanse()
+			GetInstance()
 			wg.Done()
 		}()
 	}
