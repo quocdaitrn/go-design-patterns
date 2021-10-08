@@ -21,7 +21,7 @@ func TestAdidasFactory(t *testing.T)  {
 
 	_, ok := shoe.(*productimpl.AdidasShoe)
 	if !ok {
-		t.Fatal("Struct assertion failed.")
+		t.Error("AdidasShoe must be returned.")
 	}
 }
 
@@ -39,6 +39,6 @@ func TestNikeFactory(t *testing.T)  {
 
 	_, ok := shoe.(*productimpl.NikeShoe)
 	if !ok {
-		t.Fatal("Struct assertion failed.")
+		t.Error("NikeShoe must be returned.")
 	}
 }
