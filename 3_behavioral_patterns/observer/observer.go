@@ -1,33 +1,36 @@
 package observer
 
 import (
-	"reflect"
+	"fmt"
 	"sync"
 )
 
+type Observable interface {
+	Attach(o Observer)
+	Detach(o Observer)
+	Notify(obj interface{})
+}
+
 type Observer interface {
-	Notify(string)
+	Register(Observable)
+	Update(Observable, interface{})
 }
 
-type Publisher interface {
-	Subcribe(o Observer)
-	Unsubcribe(o Observer)
-	Publish()
-}
+type Publisher struct {
+	State string
 
-type publisher struct {
 	observers []Observer
 	mutext sync.Mutex	
 }
 
-func (p *publisher) Subcribe(o Observer) {
+func (p *Publisher) Attach(o Observer) {
 	p.mutext.Lock()
 	defer p.mutext.Unlock()
 	
 	p.observers = append(p.observers, o)
 }
 
-func (p *publisher) Unsubcribe(o Observer) {
+func (p *Publisher) Detach(o Observer) {
 	var idx int
 	for i, ob := range p.observers {
 		if o == ob {
@@ -39,8 +42,29 @@ func (p *publisher) Unsubcribe(o Observer) {
 	p.observers = append(p.observers[:idx], p.observers[idx+1:]...)
 }
 
-func (p *publisher) Publish(message string) {
+func (p *Publisher) Notify(messge interface{}) {
 	for _, o := range p.observers {
-		o.Notify(message)
+		o.Update(p, messge)
 	}
+}
+
+func (p *Publisher) SetState(s string) {
+	oldState := p.State
+	p.State = s
+	if p.State != oldState {
+		p.Notify(p.State)
+	}
+}
+
+type Subcriber struct {
+	State string
+}
+
+func (s *Subcriber) Register(o Observable) {
+	o.Attach(s)
+}
+
+func (s *Subcriber) Update(o Observable, message interface{}) {
+	s.State = message.(string)
+	fmt.Printf("subcriber had received the message: %s", message.(string))
 }
