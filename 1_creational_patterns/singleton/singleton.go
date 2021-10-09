@@ -14,7 +14,7 @@ var instance *singleton // not volatile ==> double-checked locking may be broken
 // var lock = &sync.Mutex{}
 
 // // GetInstance retrieve the instance of singleton.
-// func GetInstanse() *singleton {
+// func GetInstance() *singleton {
 // 	if instance == nil {
 // 		lock.Lock()
 // 		defer lock.Unlock()
