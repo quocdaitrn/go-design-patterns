@@ -1,31 +1,74 @@
 package main
 
 import (
-	"os"
-	"io"
 	"fmt"
-	"net/http"
+	"reflect"
 )
 
-// simple http server
-type SimpleServer struct{
-	msg string
-}
-func (s *SimpleServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, s.msg)
+type Animal interface {
+	Walk()
 }
 
-// log decorator for simple server
-type ServerWithLog struct {
-	handler http.Handler
-	logger  io.Writer
-}
-func (s *ServerWithLog) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
-	fmt.Fprintf(s.logger, "Got request with uri: %s \n", r.RequestURI)
-	s.handler.ServeHTTP(w, r)
+type Dog struct {
+	Color string
+	Address *Address
+	M map[string]int
 }
 
-func main(){
-	http.Handle("/", &ServerWithLog{&SimpleServer{"Simple server"}, os.Stdout})
-	http.ListenAndServe(":3000", nil)
+func (d Dog) Walk() {
+	fmt.Println("Dog walks")
+}
+
+type RobotDog struct {
+	Dog
+	Brand string
+}
+
+type Address struct {
+	Street string
+}
+
+func main() {
+	var dog1, dog2 Animal
+	aDog := &Dog{
+		Color: "black",
+		Address: &Address{
+			Street: "124 Main Street",
+		},
+		M: map[string]int{
+            "a": 1,
+            "b": 2,
+        },
+	}
+
+	bDog := &Dog{
+		Color: "black",
+		Address: &Address{
+			Street: "124 Main Street",
+		},
+		M: map[string]int{
+            "a": 1,
+            "b": 2,
+        },
+	}
+
+	dog1 = aDog
+	dog2 = bDog
+
+	fmt.Println(dog1)
+	fmt.Println(dog2)
+	fmt.Println(dog1 == dog2)
+	fmt.Println(reflect.DeepEqual(dog1, dog2))
+
+	//------------
+	robotDog := &RobotDog{
+		Dog: *aDog,
+		Brand: "Mi",
+	}
+
+	robotDog.Walk()
+
+	sl := []int{0, 1, 2, 3}
+
+	fmt.Println(sl[:0])
 }
